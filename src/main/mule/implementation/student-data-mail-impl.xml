@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="mailing-student-data-implFlow" doc:id="f437407e-5878-402c-b5c6-2a5dc40dcad3" >
+		<sftp:listener doc:name="On New or Updated File" doc:id="ea8959d1-2ebb-45ff-9666-2278ec96ad78" config-ref="SFTP_Config" directory="/input/">
+			<scheduling-strategy >
+				<cron expression="0 0/30 * 1/1 * ? *" timeZone="Asia/Kolkata" />
+			</scheduling-strategy>
+		</sftp:listener>
+		<logger level="INFO" doc:name="completed reading the file" doc:id="51a1c2d5-65a1-4328-ad50-c513379ac5f8" message="completed reading the file, #[attributes.path]"/>
+		<ee:transform doc:name="transform payload to json" doc:id="1ca64fec-c336-401d-8a70-b68ed4c1cf5b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<foreach doc:name="For Each" doc:id="0f4e6a4d-d5db-4663-beca-1e9d43553629" collection="#[payload.students]">
+			<set-variable value="#[payload]" doc:name="student details" doc:id="04fe78da-81b4-4200-bf5f-58bf1bf6dccb" variableName="studentDetails"/>
+			<ee:transform doc:name="validation payload" doc:id="7deefee5-07ef-47cf-a94e-5204b3b1c71f" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var validGrades = Mule::p("var.validGrades")
+var validSemesters = Mule::p("var.validSemesters")
+var validBranches = Mule::p("var.validBranches")
+
+var isValid =
+    (validBranches contains payload.Branch) and
+    (validSemesters contains payload.Semester) and
+    (validGrades contains payload.Grade) and
+    (
+        ((["A","B","C"] contains payload.Grade) and (payload.FinalResult == "Pass")) or
+        ((["D","E"] contains payload.Grade) and (payload.FinalResult == "Fail"))
+    )
+
+---
+{
+    status: if (isValid) "Success" else "Failure"
+}
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<choice doc:name="check students?" doc:id="6e0266fc-d4ad-4442-9371-b87d8e747318" >
+				<when expression='#[payload.status == "Success"]'>
+					<logger level="INFO" doc:name="validation successful" doc:id="c5d23b75-e34b-4c5a-9225-9e078491d5e2" message="validation successful, sending mail to student"/>
+					<ee:transform doc:name="request payload" doc:id="5986adbe-4a7d-4656-b21e-62675b0156d5">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output text/plain
+var s = vars.studentDetails
+---
+"<html>" ++
+"<body style='font-family: Arial, sans-serif;'>" ++
+"<h3 style='color:#2E86C1;'>Student Grade Notification</h3>" ++
+"<p>Dear <b>" ++ s.StudentName ++ "</b>,</p>" ++
+"<p>Please find your grade details below:</p>" ++
+
+"<table border='1' cellpadding='8' cellspacing='0' style='border-collapse: collapse; width: 100%; text-align: center;'>" ++
+"<tr style='background-color: #f2f2f2; font-weight: bold;'>" ++
+"<th>Roll No</th>" ++
+"<th>Student Name</th>" ++
+"<th>University</th>" ++
+"<th>College</th>" ++
+"<th>Batch Code</th>" ++
+"<th>Branch</th>" ++
+"<th>Semester</th>" ++
+"<th>Grade</th>" ++
+"<th>Final Result</th>" ++
+"</tr>" ++
+
+"<tr>" ++
+"<td>" ++ s.RollNo ++ "</td>" ++
+"<td>" ++ s.StudentName ++ "</td>" ++
+"<td>" ++ s.University ++ "</td>" ++
+"<td>" ++ s.College ++ "</td>" ++
+"<td>" ++ s.BatchCode ++ "</td>" ++
+"<td>" ++ s.Branch ++ "</td>" ++
+"<td>" ++ s.Semester ++ "</td>" ++
+"<td>" ++ s.Grade ++ "</td>" ++
+"<td>" ++ s.FinalResult ++ "</td>" ++
+"</tr>" ++
+"</table>" ++
+
+"<p style='margin-top: 15px;'>Regards,<br/>University Examination Cell</p>" ++
+"</body></html>"
+]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+					<logger level="INFO" doc:name="sending mail" doc:id="8fb46151-d30e-427c-a3fc-a5dc195660fd" message="sending mail to student" />
+					<http:request method="POST" doc:name="request-to-sapi-mail" doc:id="f7ba3172-2cdd-4c8c-9b00-3b629dae3eb2" config-ref="sapi_request_configuration_mail" path="/studentDetails" responseTimeout="100000">
+						<http:body ><![CDATA[#[output application/json
+---
+{
+  "toEmail": vars.studentDetails.EmailId,
+  "subject": vars.studentDetails.StudentName as String ++ "_" ++ vars.studentDetails.RollNo as String,
+  "body": payload
+}]]]></http:body>
+					</http:request>
+					<logger level="INFO" doc:name="mail sent, inserting into db" doc:id="53150fbd-86cc-4738-acb0-bf46cc7f460b" message="mail sent to student, inserting student details into db"/>
+					<http:request method="POST" doc:name="request-to-sapi-db" doc:id="7d66763f-73c9-4987-a7b0-798e73b126b5" config-ref="sapi_request_configuration_db" path="/students" responseTimeout="100000" >
+						<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+vars.studentDetails ++ {
+	Notification : 'Y'
+}]]]></http:body>
+					</http:request>
+					<logger level="INFO" doc:name="db insertion completed" doc:id="8c03c96c-36f7-4112-8690-d96f44ea6d97" message="db insertion completed" />
+					<ee:transform doc:name="response payload" doc:id="c6172626-6efa-4363-8d81-7553396c9572">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "status": "Success",
+  "message": "Student record inserted successfully",
+  "RollNo": vars.studentDetails.RollNo,
+  "StudentName": vars.studentDetails.StudentName
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</when>
+				<otherwise >
+					<logger level="INFO" doc:name="validation failed" doc:id="3701cadc-d606-4e8a-aa7e-587bf35cc3e0" message="validation failed, inserting student details into db"/>
+					<http:request method="POST" doc:name="request-to-sapi-db" doc:id="dfdaadff-57ad-46ea-93f2-6047c23edbc0" config-ref="sapi_request_configuration_db" path="/students" responseTimeout="100000">
+						<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+vars.studentDetails ++ {
+	Notification : 'N'
+}]]]></http:body>
+					</http:request>
+					<logger level="INFO" doc:name="db insertion completed" doc:id="ac9c8547-c4cc-47a9-98be-be6f5ace7f15" message="db insertion completed"/>
+					<ee:transform doc:name="response payload" doc:id="4b767550-baa0-4042-8037-024f13f96635">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+  "status": "Success",
+  "message": "Student record inserted successfully",
+  "RollNo": vars.studentDetails.RollNo,
+  "StudentName": vars.studentDetails.StudentName
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</otherwise>
+			</choice>
+		</foreach>
+		<sftp:move doc:name="move to archieve" doc:id="45d46e9c-f670-476d-af95-6dc9c8bf7735" config-ref="SFTP_Config" sourcePath="#[attributes.path]" targetPath="/archieve/" renameTo='#[(attributes.fileName replace ".xlsx" with "") ++ "_" ++ (now() as String {format: "yyyyMMdd_HHmmss"}) ++ ".xlsx"]'/>
+		<logger level="INFO" doc:name="end" doc:id="27a59ee3-f9b2-4d01-8a11-f7f5fbf6e5a2" message='flow "mailing-student-data-impl" ended'/>
+	</flow>
+</mule>

@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="student-api-spec-test-suite.xml" />
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-HTTP::CONNECTIVITY" doc:id="6943436d-896e-431e-a141-07d34fce1c06" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="a48cf12e-5ef0-4cfd-88ef-26c4136a3130" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="request-to-sapi-db" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="79df29da-3682-4ea3-8599-37fc422bf53f" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="sapi_request_configuration_db" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json&#10;---&#10;[&#10;	{&#10;		sentnotification : 'N'&#10;	}&#10;]]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="52935fba-9447-4284-83de-e16049678afe" >
+				<munit:attributes value='#[{&#10;	uriParams:&#10;	{&#10;		RollNo: "21ECE1009"&#10;	}&#10;}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="a0e8c42e-c864-42f8-b3f0-e11c0aa631b0" name="get:\students\(RollNo):mule-mailing-student-data-p-api-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="107a4147-42f7-4029-bb3c-05c5f50b7223" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest1" doc:id="c561f41b-bd27-4071-ad1b-0a909b8bb4b7" description="Test" expectedErrorType="HTTP:BAD_GATEWAY">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="278a92e8-db58-466c-a475-8446bf91fe68" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:BAD_GATEWAY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="7db1ff08-e124-4a5f-bcb1-ed56cfa37a8f" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="72624711-ddcd-48da-8c41-2fe3666b2e10" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest2" doc:id="2fa7aca8-d797-4662-9da6-5847a3c79090" description="Test" expectedErrorType="HTTP:BAD_REQUEST" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="bf4dfe3c-99ce-44b0-9c0a-6b838135eb90" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="7566fba6-e203-425a-b872-5154cc590f01" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="d5335c1f-3ae6-4c82-bd95-fbe24b351804" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest3" doc:id="6ac7e738-01fc-4665-a1b2-c9e861aa28b5" description="Test" expectedErrorType="HTTP:NOT_FOUND">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="39adb02f-4767-4ef3-bd9f-dca19d069f77" processor="apikit:router">
+				<munit-tools:with-attributes>
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return>
+					<munit-tools:error typeId="HTTP:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="8b8264b2-8a7e-4060-8698-8810593b48a2" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation>
+			<munit-tools:assert-that doc:name="Assert that" doc:id="2f4de7c2-4df9-4856-82b5-90cfcce56870" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest4" doc:id="1e8e6fbf-3380-47f7-9247-85d9886998a3" description="Test" expectedErrorType="HTTP:METHOD_NOT_ALLOWED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="81ba9439-792c-4b2d-b034-209767b1c6ce" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="6d02deeb-efe5-4592-834c-8182f7745230" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="d3d03f4a-b775-4064-b1b6-263b64b1b423" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest5" doc:id="b0650dd4-1ea7-4d2e-89f5-fc1ced04478d" description="Test" expectedErrorType="HTTP:CLIENT_SECURITY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="cba0aac4-78c4-462e-94bc-58e4d5c0052b" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:CLIENT_SECURITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="43890964-fd5e-4783-8bc5-d8484a1ea28a" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="59a3f2cc-8078-44e0-aba0-514409855a9f" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest6" doc:id="d9636a13-e48b-4491-8d73-2beb18e95d8b" description="Test" expectedErrorType="HTTP:CONNECTIVITY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0294e28e-bd00-4baf-b6d1-941f1c2a0015" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="88914bb0-7cac-42e3-9163-de56d357fbf4" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="92ff86a5-8208-432e-ad60-070b02eaa18f" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest7" doc:id="323354a7-9d59-4b0c-ac92-0dae49ddacd3" description="Test" expectedErrorType="HTTP:FORBIDDEN" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b4516e5e-aa98-4732-92a1-e1e1f9216207" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:FORBIDDEN" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="b12a461b-049b-4374-8987-d9e625474665" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7203d31a-900a-4aeb-917f-de93b49185fb" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest8" doc:id="34e6ab06-e286-4d9e-a1bc-89136fc411fe" description="Test" expectedErrorType="HTTP:INTERNAL_SERVER_ERROR" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="4b1b4e36-5a63-439c-97ef-9cd6e6250394" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:INTERNAL_SERVER_ERROR" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="65ee954b-55b3-49fe-84a8-772779db4e36" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7388207c-50c3-4064-80b8-37f77eee686f" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest9" doc:id="0cf83916-574a-468c-8950-0445939d65eb" description="Test" expectedErrorType="HTTP:NOT_ACCEPTABLE" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8b276d39-fc7a-4a40-947b-b9855cce8c12" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="55d17cd8-1db2-4bdf-98cf-f3b8aebb3a3a" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="26f14f7b-7608-4702-ae79-9d9479040ea8" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest10" doc:id="16bbd897-f6fc-43dd-9e19-b03758bde4d3" description="Test" expectedErrorType="HTTP:PARSING" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="deb5cdb7-474d-43c6-b07b-4314a46f8c0f" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:PARSING" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="e7c8f087-ac22-4db7-8969-a5348e33028e" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="2dae6ee3-306a-4aa4-92a6-9a79c3f58c50" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest11" doc:id="4d59c5b2-fe31-42db-8efc-ce5222ba85c7" description="Test" expectedErrorType="HTTP:RETRY_EXHAUSTED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="77c80fa9-efed-43d1-a064-3ad4e8c3095f" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:RETRY_EXHAUSTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="73a7214b-8bef-4add-97fe-781ee9aa10c4" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="c6e51286-242e-4c07-9d8b-ceb431298726" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest12" doc:id="1ef39162-0faa-4609-8a01-bb11f4fe6ae8" description="Test" expectedErrorType="HTTP:SECURITY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="dc36f76a-575b-4319-9ffc-d43a0408f6a9" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:SECURITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="3623eab3-be8d-4adc-b052-fc29eb36877e" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="84c7eef4-a883-405c-a718-d6a21127e19a" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest13" doc:id="b35e7872-dd5c-40fc-84db-d1905e83e955" description="Test" expectedErrorType="HTTP:UNSUPPORTED_MEDIA_TYPE" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="c305da19-6d15-4177-8722-c995b61d2f3b" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="d6aec0fe-663a-4b4c-9c96-31321096b5da" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="4faa8bb9-f862-46dc-83b6-0f6f0a473913" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest14" doc:id="7e80ebf9-5e31-4988-a5ba-7a2dc8b1bffd" description="Test" expectedErrorType="SFTP:ACCESS_DENIED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="bb0cc8ee-9c14-4c40-8982-12a4e35ad755" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="SFTP:ACCESS_DENIED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="bc2ea8cb-68f1-4ee0-aafa-d280b1e0fd73" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="93645a75-e6d7-49e0-b922-0a6ba1f81f65" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest15" doc:id="07a4c5c0-7b5e-4a91-9df8-e4b1b3f20a02" description="Test" expectedErrorType="SFTP:CONNECTIVITY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b9d30638-827c-414e-8cc8-d7de7b5e3f7c" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="SFTP:CONNECTIVITY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="e4883fa6-b60b-4c19-8f6c-ea7807b6999c" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="1961ebe1-b354-4e5d-a6c5-a18aae26f998" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest16" doc:id="9b8c5b11-fa0b-48a4-ab07-cca5ecee9e6e" description="Test" expectedErrorType="SFTP:FILE_ALREADY_EXISTS" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="138202e7-5f2b-4edd-a61c-88d9ad9f8ef9" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="SFTP:FILE_ALREADY_EXISTS" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="b2a8923e-c0b8-4cac-b8be-baab76a63a46" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="36447316-b843-4878-a7a3-318cad0d42e8" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest17" doc:id="563fff8d-58e8-4bdb-9cd9-ddfd83799dd7" description="Test" expectedErrorType="SFTP:ILLEGAL_PATH" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="6da6bf4f-0cb3-4742-8048-c20deb9b79e3" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId=" SFTP:ILLEGAL_PATH" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="3363f02b-4c7b-4097-a6a5-945e11f40757" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="6f07cc7e-4eec-4c49-984d-2a630d6a80ec" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest18" doc:id="575f57db-05c6-4735-9ffa-db9f7e270afc" description="Test" expectedErrorType="SFTP:RETRY_EXHAUSTED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="1c5e1601-1e9e-47f5-9290-ddce1ff781a5" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="SFTP:RETRY_EXHAUSTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="d257912c-0d56-44d9-be59-b720c85d6111" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="6b5842c9-1a94-462b-8370-9ac78b0df38b" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest19" doc:id="80e40ffd-7a74-488e-9995-e913cc19c782" description="Test" expectedErrorType="APIKIT:BAD_REQUEST" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="283829b7-7040-4789-8b0f-04c1601cfa0e" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="1ae1dd4a-b057-4228-b089-45d61d5345ad" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="ea0d39f3-f66a-4958-9926-19940adf21a5" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest110" doc:id="604365b0-d571-45d9-a9fe-93e48e6da76b" description="Test" expectedErrorType="APIKIT:NOT_FOUND" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="5946c729-c2f9-48f1-8dca-39d8a82dbd7b" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="e905d834-7ccc-4612-9e75-1294fc4197d6" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="6a808203-f998-4998-a3df-1edcbb2f8ef6" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest111" doc:id="453fabb5-c9a4-4397-af68-3ec06e06f4d7" description="Test" expectedErrorType="APIKIT:METHOD_NOT_ALLOWED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="22ec5515-9f7e-42dd-9695-4f200342db69" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="f4d5cdaa-89d8-4e06-868e-979eeac612e0" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="45b7c41a-7573-453e-8947-c6e3ff54fdd9" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest112" doc:id="d91498a4-c2c8-492d-a91c-62a846ed7864" description="Test" expectedErrorType="APIKIT:NOT_ACCEPTABLE" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="845f6cc7-f30d-43b8-8d65-90d8d0075eca" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="0cca6159-a412-4d83-b4e8-7263b94bbcc8" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="293909bd-f1ca-45ad-ad2a-a7414c1d6505" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest113" doc:id="b6947714-6568-4784-9638-e20190cc651b" description="Test" expectedErrorType="APIKIT:UNSUPPORTED_MEDIA_TYPE" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="a585b6f9-19c5-4928-9cab-921f039c4983" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="1d8ab2d3-23ee-44e8-bcc3-ddf0a21002b0" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="0173b5ae-4239-48d4-9c31-0d70fe635a34" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest114" doc:id="8e6d5953-e4f9-47e3-9443-f733ad729eaf" description="Test" expectedErrorType="APIKIT:NOT_IMPLEMENTED" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="c43633de-262b-4de0-9eea-af3bb6753df4" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="369c0cf2-b52a-4a9a-80d3-947191965fd9" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="f2dad761-3a45-40cb-ae10-2373f3c2e312" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest115" doc:id="d54c8bd4-3fc0-4ca9-95ef-e8856910a137" description="Test" expectedErrorType="ANY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="ea2e22e6-af98-4e5f-98f6-47e57fbd6525" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="mule-mailing-student-data-p-api-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="9346e377-e3ea-4526-85d6-3143c467d574" name="mule-mailing-student-data-p-api-main" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="124e2763-7abe-4878-9b38-6a5a193d6385" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest116" doc:id="f0d781a1-de1c-4cc9-8c48-059e09912750" description="Test" expectedErrorType="ANY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="1ecf1501-0696-4f7f-a36b-1e2c33647c32" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="POST" attributeName="method" />
+					<munit-tools:with-attribute whereValue="request-to-sapi-db" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="dfdaadff-57ad-46ea-93f2-6047c23edbc0" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="sapi_request_configuration_db" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;{&#10;  "generatedKeys": {&#10;    &#10;  },&#10;  "affectedRows": 1&#10;}]' mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="572c8793-2609-4455-bffe-d77cd050ba38" >
+				<munit:payload value='#[output application/json&#10; ---&#10; {&#10; 	"students":&#10; 	[&#10; 	  {&#10;      "RollNo": "21CSE1007",&#10;      "StudentName": "Grace",&#10;      "EmailId": "grace@example.com",&#10;      "University": "UnivA",&#10;      "College": "ColA",&#10;      "BatchCode": "BATCH2025",&#10;      "Branch": "CSE",&#10;      "Semester": "5-1",&#10;      "Grade": "B",&#10;      "FinalResult": "Pass"&#10;   }&#10;  ]&#10;}]' encoding="UTF-8" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="ffe54e9b-72a2-44cd-802c-edbee19609a6" name="mailing-student-data-implFlow" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="afd43174-8f9d-45ab-8f0d-7d125302bc58" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	<munit:test name="student-api-spec-test-suite-mule-mailing-student-data-p-api-mainTest117" doc:id="05483604-2a36-491d-8434-ee7fcdc0275a" description="Test" expectedErrorType="ANY" >
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="7a9d74dd-e629-49b7-8748-705937abf83e" processor="http:request" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="request-to-sapi-mail" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="f7ba3172-2cdd-4c8c-9b00-3b629dae3eb2" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="sapi_request_configuration_mail" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[output application/json&#10;---&#10;{&#10;}]" mediaType="application/json" encoding="UTF-8" />
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="cbfc80e9-97f8-4a3d-96cd-fd529592f806" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="request-to-sapi-db" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="7d66763f-73c9-4987-a7b0-798e73b126b5" attributeName="doc:id" />
+					<munit-tools:with-attribute whereValue="sapi_request_configuration_db" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;{&#10;  "generatedKeys": {&#10;    &#10;  },&#10;  "affectedRows": 1&#10;}]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="bd894d08-f5e0-4980-9e48-277fcf48a08a" >
+				<munit:payload value='#[output application/json&#10; ---&#10; {&#10; 	"students":&#10; 	[&#10; 	  {&#10;      "RollNo": "21CSE1001",&#10;      "StudentName": "Alice",&#10;      "EmailId": "alice@example.com",&#10;      "University": "UnivA",&#10;      "College": "ColA",&#10;      "BatchCode": "BATCH2025",&#10;      "Branch": "CSE",&#10;      "Semester": "1-1",&#10;      "Grade": "A",&#10;      "FinalResult": "Pass"&#10;    }&#10;  ]&#10;}]' encoding="UTF-8" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to mule-mailing-student-data-p-api-main" doc:id="a85cac30-2695-4797-bda2-02781871f79c" name="mailing-student-data-implFlow" />
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="bbec79ea-7e6c-4249-ba1a-23245aaa5fc7" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+
+
+</mule>
